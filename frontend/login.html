@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WasteWise — Sign in</title>
+  <meta name="description" content="Sign in to WasteWise to start recycling and earning points." />
+  <link rel="icon" type="image/jpeg" href="logo.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-page">
+  <div class="bg-fixed" aria-hidden="true">
+    <div class="bg-gradient"></div>
+    <div class="bg-radial-1"></div>
+    <div class="bg-radial-2"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <header class="topbar">
+    <a href="index.html" class="logo" aria-label="WasteWise home">
+      <img src="logo.jpeg" alt="WasteWise logo" width="220" height="74" />
+    </a>
+    <nav class="nav-pill" aria-label="Primary">
+      <div class="nav-links">
+        <a href="index.html#how-it-works">How it works</a>
+        <a href="index.html#rewards">Rewards</a>
+        <a href="index.html#gamification">Gamification</a>
+        <a href="index.html#impact">Impact</a>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="nav-signin">Back to home</a>
+      </div>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </nav>
+    <div class="status">
+      <span class="dot-wrap"><span class="dot-ping"></span><span class="dot"></span></span>
+      <span class="status-text">Recycling underway</span>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html#how-it-works">How it works</a>
+    <a href="index.html#rewards">Rewards</a>
+    <a href="index.html#gamification">Gamification</a>
+    <a href="index.html#impact">Impact</a>
+    <a href="index.html" class="mobile-cta">Back to home</a>
+  </div>
+
+  <main class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-head">
+        <h1 id="auth-title">Welcome back</h1>
+        <p id="auth-sub">Sign in to your WasteWise account</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true">Sign in</button>
+        <button class="auth-tab" data-tab="register" role="tab" aria-selected="false">Create account</button>
+      </div>
+
+      <div id="auth-alert" class="auth-alert" role="alert" hidden></div>
+
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form active" novalidate>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <div class="input-with-action">
+            <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+            <button type="button" class="toggle-pass" aria-label="Show password">Show</button>
+          </div>
+        </label>
+        <button type="submit" class="btn btn-white btn-large auth-submit" id="login-btn"><span>Sign in</span></button>
+        <p class="auth-foot">Don't have an account? <button type="button" class="link-btn" data-switch="register">Create one</button></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" class="auth-form" novalidate>
+        <label class="field">
+          <span>Full name</span>
+          <input type="text" name="name" autocomplete="name" placeholder="Aarav Sharma" required minlength="2" />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <div class="input-with-action">
+            <input type="password" name="password" autocomplete="new-password" placeholder="At least 6 characters" required minlength="6" />
+            <button type="button" class="toggle-pass" aria-label="Show password">Show</button>
+          </div>
+          <small class="hint">Min 6 characters. Stored hashed with BCrypt.</small>
+        </label>
+        <button type="submit" class="btn btn-white btn-large auth-submit" id="register-btn"><span>Create account</span></button>
+        <p class="auth-foot">Already have an account? <button type="button" class="link-btn" data-switch="login">Sign in</button></p>
+      </form>
+
+      <p class="auth-meta">Connected to MySQL · credentials encrypted · <span id="api-status" class="api-status">checking…</span></p>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>

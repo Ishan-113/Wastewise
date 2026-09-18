@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WasteWise — Dashboard</title>
+  <meta name="description" content="Your WasteWise dashboard — bottles recycled, points, contribution and rewards." />
+  <link rel="icon" type="image/jpeg" href="logo.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dashboard-page">
+  <div class="bg-fixed" aria-hidden="true">
+    <div class="bg-gradient"></div>
+    <div class="bg-radial-1"></div>
+    <div class="bg-radial-2"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <header class="topbar">
+    <a href="index.html" class="logo" aria-label="WasteWise home">
+      <img src="logo.jpeg" alt="WasteWise logo" width="220" height="74" />
+    </a>
+    <nav class="nav-pill" aria-label="Primary">
+      <div class="nav-links">
+        <a href="dashboard.html" class="active">Dashboard</a>
+      </div>
+      <div class="nav-actions">
+        <button id="logout-btn" class="btn btn-glass">Logout</button>
+      </div>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </nav>
+    <div class="status">
+      <span class="dot-wrap"><span class="dot-ping"></span><span class="dot"></span></span>
+      <span class="status-text">Dashboard</span>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="dashboard.html">Dashboard</a>
+    <button id="logout-btn-mobile" class="btn btn-white" style="width:100%;margin-top:4px;">Logout</button>
+  </div>
+
+  <main class="dashboard-wrap">
+    <div class="dashboard-inner">
+      <div class="dash-welcome">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Your Dashboard</p>
+        <h1 id="welcome-title">Welcome back, Ishan</h1>
+        <p class="welcome-sub">Here's your recycling journey so far.</p>
+      </div>
+
+      <!-- Profile Card -->
+      <section class="dash-profile" aria-label="User profile">
+        <div class="profile-avatar" aria-hidden="true" id="profile-avatar">—</div>
+        <div class="profile-info">
+          <h2 id="profile-name">—</h2>
+          <a id="profile-email" href="mailto:" class="profile-email">—</a>
+          <span id="profile-id" class="profile-id">Member ID: —</span>
+        </div>
+        <div class="profile-badge">
+          <span class="badge-dot"></span> Active member
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="dash-stats" aria-label="Statistics">
+        <article class="card dash-stat">
+          <div class="dash-stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M12 12V4"/><path d="M12 4l-4 4"/><path d="M12 4l4 4"/><rect x="4" y="10" width="16" height="4" rx="1"/></svg>
+          </div>
+          <div class="dash-stat-body">
+            <span class="dash-stat-label">PET Recycled</span>
+            <div class="dash-stat-value" id="stat-pet">—</div>
+            <span class="dash-stat-sub">Verified PET waste collected</span>
+          </div>
+        </article>
+        <article class="card dash-stat">
+          <div class="dash-stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 19V7h10v12H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M12 11v6"/><path d="M9 14l3 3 3-3"/></svg>
+          </div>
+          <div class="dash-stat-body">
+            <span class="dash-stat-label">Bottles Recycled</span>
+            <div class="dash-stat-value" id="stat-bottles">—</div>
+            <span class="dash-stat-sub">Total bottles in recycling cycle</span>
+          </div>
+        </article>
+        <article class="card dash-stat">
+          <div class="dash-stat-icon points">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8L12 3z"/></svg>
+          </div>
+          <div class="dash-stat-body">
+            <span class="dash-stat-label">Total Points</span>
+            <div class="dash-stat-value" id="stat-points">—</div>
+            <span class="dash-stat-sub" id="stat-rupee">—</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- Contribution -->
+      <section class="panel dash-contrib" aria-label="Your contribution">
+        <div class="contrib-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 20a1 1 0 0 0 2 0v-1a3 3 0 0 0-3-3 3 3 0 0 1-3-3 5 5 0 0 1 10 0 3 3 0 0 1-3 3 3 3 0 0 0-3 3v1z"/><path d="M12 3v3"/></svg>
+        </div>
+        <div class="contrib-text">
+          <h2>Your Contribution</h2>
+          <p class="contrib-main" id="contrib-main">— PET diverted from waste</p>
+          <p class="contrib-sub">Every bottle counts. You've helped keep <strong id="contrib-count">—</strong> of verified PET in the recycling cycle — turning waste into useful resources. <span id="contrib-detail"></span></p>
+        </div>
+      </section>
+
+      <!-- Redeem -->
+      <section class="dash-redeem" aria-label="Redeem points">
+        <div class="section-head" style="margin-bottom:28px;">
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Redeem Points</span>
+          <h2>Turn points into rewards</h2>
+          <p class="section-desc">Choose a reward — redemption will be connected to your account shortly.</p>
+        </div>
+        <div class="redeem-grid" id="redeem-grid">
+          <!-- injected by dashboard.js -->
+        </div>
+        <p class="redeem-note">Points earned at 0.4 pts per gram of verified PET (20 pts = ₹1). Rewards handled securely after backend integration.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- Redeem Modal -->
+  <div id="redeem-modal" class="modal" hidden>
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Redemption coming soon</h3>
+      <p id="modal-msg">Redemption functionality will be connected to your account shortly.</p>
+      <button id="modal-close" class="btn btn-white">Got it</button>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
