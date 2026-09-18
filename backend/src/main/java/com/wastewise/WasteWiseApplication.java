@@ -1,12 +1,12 @@
 package com.wastewise;
 
-import com.wastewise.stats.UserRecyclingStats;
 import com.wastewise.stats.UserRecyclingStatsRepository;
 import com.wastewise.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootApplication
 public class WasteWiseApplication {
@@ -15,9 +15,9 @@ public class WasteWiseApplication {
     }
 
     // Demo fix: ensure SHADOW (sha@gmail.com, id 6) shows 5kg/200/2000 instead of 0/0/0
-    // Runs on every startup — idempotent, only updates if current is 0/0/0 or missing
+    // Uses JDBC upsert to bypass Hibernate @MapsId null identifier bug
     @Bean
-    CommandLineRunner demoStatsFix(UserRepository users, UserRecyclingStatsRepository statsRepo) {
+    CommandLineRunner demoStatsFix(UserRepository users, UserRecyclingStatsRepository statsRepo, JdbcTemplate jdbc) {
         return args -> {
             try {
                 var optUser = users.findByEmail("sha@gmail.com");
@@ -31,11 +31,8 @@ public class WasteWiseApplication {
                     var opt = statsRepo.findById(id);
                     if (opt.isEmpty()) {
                         try {
-                            // Use managed reference for @MapsId
-                            var userRef = users.getReferenceById(id);
-                            UserRecyclingStats ns = new UserRecyclingStats(userRef, 5.0, 200, 2000);
-                            statsRepo.save(ns);
-                            System.out.println("[WasteWise] Created demo stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                            jdbc.update("INSERT INTO user_recycling_stats (user_id, pet_weight_kg, bottles_recycled, points) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE pet_weight_kg=VALUES(pet_weight_kg), bottles_recycled=VALUES(bottles_recycled), points=VALUES(points)", id, 5.0, 200, 2000);
+                            System.out.println("[WasteWise] Created demo stats for SHADOW id=" + id + " -> 5kg/200/2000 (JDBC)");
                         } catch (Exception ex) {
                             System.out.println("[WasteWise] demoStatsFix create failed: " + ex.getMessage());
                             ex.printStackTrace();
@@ -46,12 +43,9 @@ public class WasteWiseApplication {
                                 && (s.getBottlesRecycled() == null || s.getBottlesRecycled() == 0)
                                 && (s.getPoints() == null || s.getPoints() == 0);
                         if (isZero) {
-                            s.setPetWeightKg(5.0);
-                            s.setBottlesRecycled(200);
-                            s.setPoints(2000);
                             try {
-                                statsRepo.save(s);
-                                System.out.println("[WasteWise] Fixed zero stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                                jdbc.update("UPDATE user_recycling_stats SET pet_weight_kg=?, bottles_recycled=?, points=? WHERE user_id=?", 5.0, 200, 2000, id);
+                                System.out.println("[WasteWise] Fixed zero stats for SHADOW id=" + id + " -> 5kg/200/2000 (JDBC)");
                             } catch (Exception ex) {
                                 System.out.println("[WasteWise] demoStatsFix update failed: " + ex.getMessage());
                                 ex.printStackTrace();
