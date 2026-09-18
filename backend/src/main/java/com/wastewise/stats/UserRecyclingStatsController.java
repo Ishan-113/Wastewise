@@ -56,4 +56,54 @@ public class UserRecyclingStatsController {
                 "points", 0
         ));
     }
+
+    @PutMapping("/recycling-stats")
+    public ResponseEntity<?> updateStats(@RequestHeader(value = "Authorization", required = false) String authHeader,
+                                         @RequestBody(required = false) Map<String, Object> body) {
+        Optional<Long> userIdOpt = jwt.parseUserId(authHeader);
+        if (userIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized: missing or invalid token"));
+        }
+        Long userId = userIdOpt.get();
+        if (body == null) body = Map.of();
+
+        Double pet = parseDouble(body.get("pet_weight_kg"), body.get("petWeightKg"));
+        Integer bottles = parseInt(body.get("bottles_recycled"), body.get("bottlesRecycled"));
+        Integer points = parseInt(body.get("points"), null);
+
+        // If all null, default to demo values 5/200/2000 (SHADOW fix)
+        if (pet == null && bottles == null && points == null) {
+            pet = 5.0; bottles = 200; points = 2000;
+        }
+
+        UserRecyclingStats stats = statsRepo.findById(userId).orElse(new UserRecyclingStats(userId));
+        if (pet != null) stats.setPetWeightKg(pet);
+        if (bottles != null) stats.setBottlesRecycled(bottles);
+        if (points != null) stats.setPoints(points);
+        try {
+            statsRepo.save(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Failed to save stats: " + e.getMessage()));
+        }
+        return ResponseEntity.ok(Map.of(
+                "pet_weight_kg", stats.getPetWeightKg(),
+                "bottles_recycled", stats.getBottlesRecycled(),
+                "points", stats.getPoints()
+        ));
+    }
+
+    private Double parseDouble(Object... candidates) {
+        for (Object o : candidates) {
+            if (o == null) continue;
+            try { return Double.parseDouble(String.valueOf(o)); } catch (Exception ignored) {}
+        }
+        return null;
+    }
+    private Integer parseInt(Object... candidates) {
+        for (Object o : candidates) {
+            if (o == null) continue;
+            try { return Integer.parseInt(String.valueOf(o).split("\\.")[0]); } catch (Exception ignored) {}
+        }
+        return null;
+    }
 }
