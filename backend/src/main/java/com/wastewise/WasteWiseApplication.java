@@ -30,13 +30,16 @@ public class WasteWiseApplication {
                     }
                     var opt = statsRepo.findById(id);
                     if (opt.isEmpty()) {
-                        // Use id-only constructor to avoid @MapsId null identifier issue
-                        UserRecyclingStats ns = new UserRecyclingStats(id);
-                        ns.setPetWeightKg(5.0);
-                        ns.setBottlesRecycled(200);
-                        ns.setPoints(2000);
-                        statsRepo.save(ns);
-                        System.out.println("[WasteWise] Created demo stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                        try {
+                            // Use managed reference for @MapsId
+                            var userRef = users.getReferenceById(id);
+                            UserRecyclingStats ns = new UserRecyclingStats(userRef, 5.0, 200, 2000);
+                            statsRepo.save(ns);
+                            System.out.println("[WasteWise] Created demo stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                        } catch (Exception ex) {
+                            System.out.println("[WasteWise] demoStatsFix create failed: " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
                     } else {
                         var s = opt.get();
                         boolean isZero = (s.getPetWeightKg() == null || s.getPetWeightKg() == 0.0)
@@ -46,8 +49,13 @@ public class WasteWiseApplication {
                             s.setPetWeightKg(5.0);
                             s.setBottlesRecycled(200);
                             s.setPoints(2000);
-                            statsRepo.save(s);
-                            System.out.println("[WasteWise] Fixed zero stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                            try {
+                                statsRepo.save(s);
+                                System.out.println("[WasteWise] Fixed zero stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                            } catch (Exception ex) {
+                                System.out.println("[WasteWise] demoStatsFix update failed: " + ex.getMessage());
+                                ex.printStackTrace();
+                            }
                         } else {
                             System.out.println("[WasteWise] SHADOW stats already " + s.getPetWeightKg() + "kg/" + s.getBottlesRecycled() + "/" + s.getPoints() + " — no fix needed");
                         }

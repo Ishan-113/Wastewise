@@ -1,6 +1,8 @@
 package com.wastewise.stats;
 
 import com.wastewise.auth.JwtService;
+import com.wastewise.user.User;
+import com.wastewise.user.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +15,12 @@ import java.util.Optional;
 public class UserRecyclingStatsController {
 
     private final UserRecyclingStatsRepository statsRepo;
+    private final UserRepository userRepo;
     private final JwtService jwt;
 
-    public UserRecyclingStatsController(UserRecyclingStatsRepository statsRepo, JwtService jwt) {
+    public UserRecyclingStatsController(UserRecyclingStatsRepository statsRepo, UserRepository userRepo, JwtService jwt) {
         this.statsRepo = statsRepo;
+        this.userRepo = userRepo;
         this.jwt = jwt;
     }
 
@@ -40,15 +44,15 @@ public class UserRecyclingStatsController {
 
         // Missing record → create zero record (idempotent, no duplicate) and return zeros
         // Do not expose error page as per spec
-        UserRecyclingStats zero = new UserRecyclingStats(userId);
-        zero.setPetWeightKg(0.0);
-        zero.setBottlesRecycled(0);
-        zero.setPoints(0);
         try {
-            // Only save if user exists; if FK fails, just return zeros without persisting
-            statsRepo.save(zero);
+            User userRef = userRepo.getReferenceById(userId);
+            if (userRef.getId() != null) {
+                UserRecyclingStats zero = new UserRecyclingStats(userRef, 0.0, 0, 0);
+                statsRepo.save(zero);
+            }
         } catch (Exception e) {
-            // FK violation (user not found) → return zeros transient
+            // FK violation or MapsId issue → return zeros transient
+            // e.printStackTrace();
         }
         return ResponseEntity.ok(Map.of(
                 "pet_weight_kg", 0.0,
@@ -76,13 +80,32 @@ public class UserRecyclingStatsController {
             pet = 5.0; bottles = 200; points = 2000;
         }
 
-        UserRecyclingStats stats = statsRepo.findById(userId).orElse(new UserRecyclingStats(userId));
-        if (pet != null) stats.setPetWeightKg(pet);
-        if (bottles != null) stats.setBottlesRecycled(bottles);
-        if (points != null) stats.setPoints(points);
+        Optional<UserRecyclingStats> existing = statsRepo.findById(userId);
+        UserRecyclingStats stats;
+        if (existing.isPresent()) {
+            stats = existing.get();
+            if (pet != null) stats.setPetWeightKg(pet);
+            if (bottles != null) stats.setBottlesRecycled(bottles);
+            if (points != null) stats.setPoints(points);
+        } else {
+            // Create new — must attach managed User for @MapsId (getReferenceById keeps it managed)
+            try {
+                User userRef = userRepo.getReferenceById(userId);
+                // Touch id to ensure proxy initialized with id
+                Long refId = userRef.getId();
+                if (refId == null) throw new IllegalStateException("User id null");
+                Double petVal = pet != null ? pet : 0.0;
+                Integer botVal = bottles != null ? bottles : 0;
+                Integer ptsVal = points != null ? points : 0;
+                stats = new UserRecyclingStats(userRef, petVal, botVal, ptsVal);
+            } catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "User not found for stats: " + ex.getMessage()));
+            }
+        }
         try {
             statsRepo.save(stats);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Failed to save stats: " + e.getMessage()));
         }
         return ResponseEntity.ok(Map.of(
