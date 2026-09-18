@@ -56,8 +56,4 @@ public class JwtService {
             return Optional.empty();
         }
     }
-
-    public boolean isValid(String token) {
-        return parseUserId(token).isPresent();
-    }
 }

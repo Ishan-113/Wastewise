@@ -19,7 +19,6 @@ temp/
 backend/target/
 *.class
 *.jar
-!backend/target/*.jar
 
 # MySQL data (docker volume is outside, but ignore local dumps)
 *.sql

@@ -19,15 +19,11 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 String[] origins = allowedOrigins.split(",");
                 // allowedOriginPatterns supports wildcard like https://*.vercel.app
-                registry.addMapping("/api/**")
+                registry.addMapping("/**")
                         .allowedOriginPatterns(origins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(false);
-                registry.addMapping("/**")
-                        .allowedOriginPatterns(origins)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
             }
         };
     }
