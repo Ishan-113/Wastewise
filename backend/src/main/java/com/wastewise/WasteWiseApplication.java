@@ -20,12 +20,22 @@ public class WasteWiseApplication {
     CommandLineRunner demoStatsFix(UserRepository users, UserRecyclingStatsRepository statsRepo) {
         return args -> {
             try {
-                users.findByEmail("sha@gmail.com").ifPresent(u -> {
+                var optUser = users.findByEmail("sha@gmail.com");
+                if (optUser.isEmpty()) optUser = users.findByEmail("SHA@gmail.com");
+                optUser.ifPresent(u -> {
                     Long id = u.getId();
+                    if (id == null) {
+                        System.out.println("[WasteWise] demoStatsFix: user id null for " + u.getEmail());
+                        return;
+                    }
                     var opt = statsRepo.findById(id);
                     if (opt.isEmpty()) {
-                        // No row (first login created zero via GET, but handle missing)
-                        statsRepo.save(new UserRecyclingStats(u, 5.0, 200, 2000));
+                        // Use id-only constructor to avoid @MapsId null identifier issue
+                        UserRecyclingStats ns = new UserRecyclingStats(id);
+                        ns.setPetWeightKg(5.0);
+                        ns.setBottlesRecycled(200);
+                        ns.setPoints(2000);
+                        statsRepo.save(ns);
                         System.out.println("[WasteWise] Created demo stats for SHADOW id=" + id + " -> 5kg/200/2000");
                     } else {
                         var s = opt.get();
@@ -38,11 +48,15 @@ public class WasteWiseApplication {
                             s.setPoints(2000);
                             statsRepo.save(s);
                             System.out.println("[WasteWise] Fixed zero stats for SHADOW id=" + id + " -> 5kg/200/2000");
+                        } else {
+                            System.out.println("[WasteWise] SHADOW stats already " + s.getPetWeightKg() + "kg/" + s.getBottlesRecycled() + "/" + s.getPoints() + " — no fix needed");
                         }
                     }
                 });
+                if (optUser.isEmpty()) System.out.println("[WasteWise] demoStatsFix: sha@gmail.com not found");
             } catch (Exception e) {
                 System.out.println("[WasteWise] demoStatsFix skipped: " + e.getMessage());
+                e.printStackTrace();
             }
         };
     }
